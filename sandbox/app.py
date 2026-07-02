@@ -1,13 +1,11 @@
-"""Streamlit sandbox for the Redrob candidate ranker.
+"""Small Streamlit demo wrapping the ranker for the sandbox requirement.
 
-Satisfies the submission spec's Section 10.5 sandbox requirement: accepts a
-small candidate sample (<=100), runs the *same* ranking pipeline used for the
-full submission, and returns a ranked CSV — end-to-end, on CPU, in seconds.
+Runs the exact same src/ pipeline as rank.py, just against a small uploaded
+sample instead of the full 100k pool, so a reviewer can poke at it without
+needing the full dataset.
 
 Run locally:
     streamlit run sandbox/app.py
-
-Deploy free on Streamlit Community Cloud pointing at this file.
 """
 from __future__ import annotations
 
@@ -25,13 +23,13 @@ from rank import build_rows, write_csv  # noqa: E402
 from src import parse, score  # noqa: E402
 
 
-st.set_page_config(page_title="Redrob Candidate Ranker", layout="wide")
-st.title("Redrob Intelligent Candidate Ranker — Sandbox")
+st.set_page_config(page_title="Candidate Ranker Sandbox", layout="wide")
+st.title("Candidate Ranker — Sandbox")
 st.caption(
     "Upload a small candidate sample (JSONL or a JSON array, <=100 records). "
-    "The exact production pipeline scores it on CPU in seconds and returns a "
-    "ranked CSV. Evidence is read from career descriptions — never the skills "
-    "list — honeypots are excluded, and each row carries fact-grounded reasoning."
+    "This runs the same pipeline as the full submission: evidence is read "
+    "from career descriptions (not the skills list), honeypots get filtered "
+    "out, and each row gets a fact-grounded reasoning string."
 )
 
 uploaded = st.file_uploader(

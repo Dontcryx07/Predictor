@@ -5,7 +5,9 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+env/
 .env
+*.log
 
 # Large data pool (do not commit the 465MB candidates file; document how to get it)
 dataset/candidates.jsonl
@@ -13,8 +15,17 @@ dataset/candidates.jsonl.gz
 
 # Generated submission (reproducible via rank.py)
 submission.csv
+submission_sample.csv
+
+# Personal working notes / scratch (not part of the graded deliverable)
+plan.md
+notebooks/scratch*.ipynb
+.ipynb_checkpoints/
 
 # OS / editor
 .DS_Store
+Thumbs.db
+desktop.ini
 .idea/
 .vscode/
+*.swp

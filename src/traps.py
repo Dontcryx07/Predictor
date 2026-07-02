@@ -1,30 +1,26 @@
-"""Stage 4 (part A) — trap and honeypot detection.
+"""Honeypot and keyword-stuffer detection.
 
-The dataset embeds ~80 honeypot candidates with *subtly impossible* profiles
-(spec Section 7). Ranking any of them into the top 100 risks disqualification
-(honeypot rate > 10% is an automatic fail), and ranking them into the top 10
-signals a system that isn't actually reading profiles.
+The spec mentions ~80 honeypot candidates with subtly impossible profiles, and
+says a >10% honeypot rate in the top 100 gets you disqualified. So this matters
+more than almost anything else in the pipeline.
 
-We detect honeypots using **internal profile contradictions** — impossibilities
-the candidate's own data asserts about itself — rather than anything derived
-from company *names*. EDA established that company names are randomized noise
-(fictional and real firms are assigned independently of role content and
-dates), so "started at CRED before it was founded" is an artifact of random
-assignment, not an authored impossibility, and using it would false-flag ~177
-otherwise-legitimate candidates. We therefore ignore it.
+My first instinct was to check tenure against real company founding dates
+(e.g. flag anyone who "worked at CRED" before 2018). Turned out that's a dead
+end -- during EDA I found company names are assigned completely independently
+of role content and dates (Infosys/Wipro and fictional names like "Pied Piper"
+all show up ~23.5k times regardless of what the person actually did), so that
+check would have false-flagged ~177 perfectly normal candidates. Ditched it.
 
-The two high-precision signals we use:
-    1. **Experience inflation** — stated ``years_of_experience`` exceeds the
-       span of the listed career history by an implausible margin.
-    2. **Phantom expertise** — several skills claimed at ``expert`` proficiency
-       with ``duration_months == 0`` (expert at something never used).
+What actually works is checking for contradictions *within* a candidate's own
+data:
+    1. Experience inflation - stated years_of_experience is way more than the
+       career history actually spans.
+    2. Phantom expertise - "expert" in several skills with 0 months of use.
 
-Policy: any honeypot-flagged candidate is *excluded from the submitted top 100*.
-Because we only need honeypots out of our own shortlist (not globally
-identified), and excluding a borderline non-honeypot costs almost nothing while
-including a real honeypot is catastrophic, we accept a deliberately
-conservative (slightly over-covering) flag. This asymmetric-cost choice is
-documented in plan.md Section 9.
+Any flagged candidate gets dropped from the shortlist entirely rather than
+just penalized. We flag more candidates than the ~80 honeypots the spec
+mentions, but that's fine -- dropping a borderline real candidate costs
+basically nothing, whereas letting one honeypot through is a big risk.
 """
 from __future__ import annotations
 

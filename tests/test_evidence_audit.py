@@ -1,9 +1,10 @@
-"""Validate that the general evidence scorer reproduces the 44-template audit.
+"""Checks the scorer against the hand-graded template audit.
 
-This is the central correctness guarantee: the scorer is a *general* lexical
-model, and here we assert it places every one of the 44 canonical templates in
-its human-audited relevance tier. If a future ontology change regresses any
-template, this test fails.
+This is the test I care about most in the whole suite: evidence.py is a
+general text scorer, not a lookup table, and this confirms it independently
+lands on the same tier as the manual audit for all 44 known templates. If
+someone (including future me) tweaks an ontology weight and breaks one of
+these, this is what catches it.
 """
 from __future__ import annotations
 
@@ -15,12 +16,12 @@ import pytest
 from src import evidence
 from src.templates_audit import AUDIT, grade_to_tier, match_description
 
-TEMPLATES_PATH = Path("dataset/_templates_extracted.json")
+TEMPLATES_PATH = Path("dataset/career_description_templates.json")
 
 
 def _load_templates():
     if not TEMPLATES_PATH.exists():
-        pytest.skip("dataset/_templates_extracted.json not present")
+        pytest.skip(f"{TEMPLATES_PATH} not present (run tools/extract_templates.py)")
     return json.loads(TEMPLATES_PATH.read_text(encoding="utf-8"))
 
 

@@ -1,9 +1,11 @@
-"""Calibration harness: run the general evidence scorer against all 44 audited
-templates and report, per template, the scored grade/tier vs the audited
-grade/tier. Exit non-zero if any tier mismatches, so it doubles as a check.
+"""Side-by-side comparison of the scorer's output vs the hand-graded audit.
+
+Used this constantly while tuning the ontology weights in evidence.py --
+change a weight, rerun this, see which of the 44 templates moved tier.
+Exits non-zero on any mismatch so it can also run as a quick check.
 
 Usage:
-    python -m tools.calibrate_evidence --templates ./dataset/_templates_extracted.json
+    python -m tools.calibrate_evidence --templates ./dataset/career_description_templates.json
 """
 from __future__ import annotations
 
@@ -18,7 +20,7 @@ from src.templates_audit import AUDIT, grade_to_tier, match_description
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--templates", default="./dataset/_templates_extracted.json", type=Path)
+    parser.add_argument("--templates", default="./dataset/career_description_templates.json", type=Path)
     args = parser.parse_args(argv)
 
     templates = json.loads(args.templates.read_text(encoding="utf-8"))

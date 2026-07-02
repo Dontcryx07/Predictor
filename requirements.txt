@@ -1,12 +1,6 @@
-# Runtime dependencies for producing the submission CSV: NONE.
+# No runtime deps for rank.py / src/ on purpose (stdlib only: json, gzip, csv,
+# re, math, dataclasses) -- one less thing to break in the grading sandbox.
+# Needs Python 3.10+.
 #
-# rank.py and the entire src/ ranking pipeline run on the Python standard
-# library only (json, gzip, csv, re, math, dataclasses). There is no numpy,
-# no torch, no sentence-transformers, and no network access — by design. This
-# is what lets the ranking step reproduce in seconds inside the Stage-3
-# sandbox (CPU-only, 16GB, no network) with zero dependency-resolution risk.
-#
-# Python 3.10+ is required (uses PEP 604 unions and modern typing).
-#
-# Development / testing only:
+# dev/test only:
 pytest==8.3.4

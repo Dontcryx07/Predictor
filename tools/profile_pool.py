@@ -1,7 +1,8 @@
-"""Diagnostics: run evidence + trap detection over the full pool and report
-distributions, timing, honeypot counts, and how the strong pool is affected.
+"""Scratch script for sanity-checking evidence/trap output on the full pool.
 
-Usage:
+Prints grade distribution, timing, and a handful of honeypot + clean examples
+so I can eyeball whether the numbers look right before trusting rank.py.
+
     python -m tools.profile_pool --candidates ./dataset/candidates.jsonl
 """
 from __future__ import annotations

@@ -1,20 +1,17 @@
-"""Stage 2 — JD-fit scoring.
+"""JD-fit: the "logistics" score, separate from whether they can do the job.
 
-Evidence answers "did they do the work?". JD-fit answers "do the logistics and
-seniority line up?" — a bounded refinement that orders candidates *within* an
-evidence tier without ever overriding it. Signals, each mapped to [-1, 1]:
+evidence.py answers "did they actually do this kind of work". This module
+answers the more mundane question of whether the rest of the JD lines up --
+years of experience, location, notice period, product vs. consulting
+background, and whether their claimed skills hold up against Redrob's own
+assessment scores.
 
-    * experience band — the JD's ideal is 6-8 years (stated band 5-9, explicitly
-      "a range, not a requirement").
-    * location — offices are Pune/Noida; Hyderabad/Mumbai/Delhi-NCR/Bangalore
-      welcomed; rest of India next; abroad only if willing to relocate.
-    * notice period — the JD prefers sub-30-day / buyable notice.
-    * product context — product/startup/marketplace work over pure consulting,
-      read from description *text* (company names are noise, per EDA).
-    * skill trust — Redrob skill-assessment scores corroborating claimed skills.
-
-The weighted blend is clamped to [-1, 1] and consumed as ``(1 + ALPHA * jdfit)``
-in the final score, so JD-fit can move a candidate by at most ~±ALPHA.
+This is deliberately a *small* correction on top of evidence, not a second
+vote of equal weight -- see ALPHA below. A candidate with amazing evidence but
+a slightly long notice period should still clearly outrank a mediocre one
+sitting in Noida. The weights here are my best read of the JD's stated
+priorities (5-9y band, Pune/Noida offices, sub-30-day notice preferred), not
+anything derived from the data.
 """
 from __future__ import annotations
 

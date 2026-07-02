@@ -1,29 +1,26 @@
-"""The 44-template evidence audit — the human-graded reference set.
+"""Hand-graded reference tiers for the 44 career-description templates.
 
-EDA established that every ``career_history[].description`` in the 100k pool is
-one of exactly 44 canonical strings. That makes the text universe small enough
-to audit *exhaustively* rather than by sampling. This module records, for each
-template, a human judgment of how strongly it evidences fit for the JD
-(Senior AI Engineer building production retrieval / ranking / search / recsys
-systems), expressed as:
+While exploring the dataset I noticed every career_history[].description in
+the 100k pool is one of a small, fixed set of strings -- 44 of them, to be
+exact (see tools/extract_templates.py, which is the script I used to pull
+them out and count frequencies). Once that clicked, it made sense to just sit
+down and grade all 44 by hand against the JD instead of guessing at a scoring
+formula blind. Each entry below has:
 
-    * ``tier``  — integer 0..5 relevance tier (mirrors the hidden GT scale).
-    * ``grade`` — continuous 0..1 target evidence grade (finer ordering).
-    * ``family``— a short role-family label (for reporting / reasoning).
-    * ``note``  — the written justification for the grade.
+    tier   -- 0..5 relevance tier, my best guess at matching the hidden scale
+    grade  -- 0..1 target grade, for finer-grained ordering within a tier
+    family -- short label used later in reasoning text
+    note   -- why I graded it the way I did
 
-IMPORTANT — how this is used:
-    * At *ranking time* we do NOT look candidates up in this table. Evidence is
-      produced by the general lexical scorer in ``evidence.py`` so the system
-      generalizes to unseen text (e.g. the sandbox sample).
-    * This audit is the *validation set*: a unit test asserts the general
-      scorer places every one of the 44 templates in the correct tier band.
-    * ``evaluate.py`` uses it to build a proxy ground truth for local NDCG.
+Important: this table is NOT used at ranking time. It exists purely as a
+validation/reference set -- see tests/test_evidence_audit.py, which checks
+that the general scorer in evidence.py independently lands on the same tier
+for all 44 templates, and evaluate.py, which uses it to build a rough local
+ground truth for testing the pipeline before submitting.
 
-Templates are matched by a normalized 45-char prefix, which is unique across
-all 44 canonical strings (verified in tests). Full texts live in the committed
-``dataset/_templates_extracted.json`` artifact produced by
-``tools/extract_templates.py``.
+Templates are matched below by a 45-character prefix (unique across all 44,
+confirmed in tests). Full text of each template lives in
+``dataset/career_description_templates.json``.
 """
 from __future__ import annotations
 

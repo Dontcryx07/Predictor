@@ -1,16 +1,17 @@
-"""Stage 3 — behavioral availability modifier.
+"""Behavioral availability modifier.
 
-The JD is explicit: "a perfect-on-paper candidate who hasn't logged in for 6
-months and has a 5% recruiter response rate is, for hiring purposes, not
-actually available. Down-weight them appropriately." EDA also found behavioral
-twins — pairs of otherwise-identical strong candidates separated only by
-engagement — so behavior is a genuine within-tier ordering signal, not a
-tiebreak afterthought.
+The JD flat out says it: a perfect-on-paper candidate who hasn't logged in
+for 6 months and ignores 95% of recruiter messages isn't actually available,
+and should be down-weighted. While poking around the pool I also found pairs
+of candidates with near-identical career histories and titles that differ
+mainly in engagement (one responds 88% of the time, the other 60%) -- which
+suggests the ground truth probably does use this to separate otherwise-tied
+candidates, not just as a coin-flip tiebreak.
 
-This returns a multiplicative factor in roughly [0.6, 1.1]: a strongly engaged,
-open-to-work, recently active candidate gets a small boost; a stale, unengaged
-one is meaningfully discounted. It is multiplicative and bounded so it refines
-ordering within an evidence tier without inverting tiers.
+Returns a multiplier roughly in [0.6, 1.1] combining activity recency,
+response rate, open-to-work flag, and interview completion. Kept fairly
+narrow on purpose -- this should reorder people within a tier, not let a
+hyperactive Tier-2 candidate leapfrog a quiet Tier-5.
 """
 from __future__ import annotations
 

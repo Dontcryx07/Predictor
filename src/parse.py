@@ -1,14 +1,12 @@
-"""Stage 0 — parsing, normalization, and the dataset time anchor.
+"""Loading candidates and a few shared helpers. No scoring logic in here.
 
-Responsibilities:
-    * Robustly load candidates from a plain or gzipped JSONL file.
-    * Provide safe accessors for the nested profile structure.
-    * Derive a *deterministic* "today" from the data itself (the maximum
-      ``last_active_date`` in the pool) so that any time-based feature is
-      reproducible across machines and runs — never wall-clock dependent.
-
-No scoring logic lives here; this module only turns bytes into clean,
-typed-enough Python structures for the rest of the pipeline.
+Two things worth calling out:
+  - loading tolerates gzip or plain jsonl, and skips bad lines instead of
+    blowing up on one malformed row out of 100k.
+  - "today" for recency-based features is derived from the data itself (max
+    last_active_date), not datetime.now(). Otherwise the ranking would
+    silently change every time someone re-runs it on a different day, which
+    would be a bad time to discover that during the Stage-3 reproduction.
 """
 from __future__ import annotations
 

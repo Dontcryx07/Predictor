@@ -1,17 +1,19 @@
-"""Local evaluation harness — proxy ground truth + ranking metrics.
+"""A rough local stand-in for the hidden leaderboard.
 
-There is no public leaderboard, so we build our own offline evaluator (the JD
-itself asks for exactly this skill). The proxy ground truth assigns each
-candidate a relevance tier from the exhaustive 44-template audit — the best
-(highest) tier among the templates their career history uses — forced to tier 0
-if the candidate is a detected honeypot. We then compute the same composite the
-organizers use:
+There's no public leaderboard and no feedback during the competition, so
+there's no honest way to know the real score before submitting. What we can
+do is build our own "ground truth" from the template audit (best tier across
+a candidate's roles, forced to 0 for honeypots) and compute the same metrics
+the spec says they'll use:
 
     composite = 0.50*NDCG@10 + 0.30*NDCG@50 + 0.15*MAP + 0.05*P@10
 
-This is explicitly a *proxy*: it assumes our template grading matches the hidden
-ground truth's tiering. It is used for weight sensitivity sweeps, ablations, and
-regression testing — never presented as the real score.
+Worth being honest about the limits here: this proxy ground truth comes from
+the same audit that drives the scorer, so getting a composite of 1.0 against
+it mostly just proves there are no bugs in the tier logic -- it says nothing
+about whether the ordering *within* the strong candidates matches what the
+real judges think. Used this for sanity checks and weight sweeps, not as
+proof of a good score.
 """
 from __future__ import annotations
 

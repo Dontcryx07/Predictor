@@ -6,8 +6,8 @@ Founding Team** JD out of a 100,000-candidate pool, producing a fact-grounded
 reasoning for every pick.
 
 Pure Python standard library. No GPU, no network, no precomputed artifacts,
-no third-party runtime dependencies. Full-pool ranking runs in **~19 seconds**
-on a laptop CPU — a >15x margin under the 5-minute budget.
+no third-party runtime dependencies. Full-pool ranking runs in **~20-25
+seconds** on a laptop CPU — well under the 5-minute budget.
 
 ---
 
@@ -129,9 +129,25 @@ filter is deliberately conservative (asymmetric cost).
 | `src/score.py` | Composite scoring, tier-safe ranking, deterministic tie-break |
 | `src/reasoning.py` | Fact-slotting reasoning generator |
 | `src/evaluate.py` | Local proxy ground truth + NDCG@10/@50, MAP, P@10 |
-| `tools/` | EDA / calibration / evaluation diagnostics (not on the ranking path) |
+| `tools/` | EDA / calibration / evaluation scripts (not on the ranking path) |
 | `tests/` | Unit tests, incl. the scorer-vs-audit tier validation |
 | `sandbox/app.py` | Streamlit demo that ranks an uploaded small sample |
+| `docs/notes.md` | Informal working notes on the data / decisions made along the way |
+
+---
+
+## Sandbox demo
+
+`sandbox/app.py` is a small Streamlit wrapper around the exact same `src/`
+pipeline, so a reviewer can upload a handful of candidates and see ranked
+output without needing the full 465MB pool. Run it locally with:
+
+```bash
+streamlit run sandbox/app.py
+```
+
+It's deployed at: _add your Streamlit Community Cloud URL here before
+submitting_.
 
 ---
 
@@ -170,7 +186,7 @@ future ontology change that regresses a template fails CI.
 
 ## Compute & reproducibility
 
-- **Runtime:** ~19s for 100k candidates (load ~9s, rank ~10s) on a laptop CPU.
+- **Runtime:** ~20-25s for 100k candidates (load ~10-13s, rank+score ~9-10s) on a laptop CPU.
 - **Memory:** the full pool fits comfortably under 16 GB.
 - **Determinism:** no RNG; stable sorts; "today" is the dataset's max
   `last_active_date` (`2026-05-27`), never the wall clock.

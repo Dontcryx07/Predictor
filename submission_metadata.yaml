@@ -68,7 +68,7 @@ methodology_summary: |
   composite (evidence tier dominant) is refined within-tier by JD-fit (experience
   6-8y, Pune/Noida, notice) and a behavioral-availability multiplier. Honeypots
   are excluded via internal profile contradictions (experience inflation, phantom
-  expertise). Pure-Python, deterministic, ~19s for 100k candidates on CPU, with
+  expertise). Pure-Python, deterministic, ~20-25s for 100k candidates on CPU, with
   fact-grounded reasoning per candidate.
 
 # ============================================================================

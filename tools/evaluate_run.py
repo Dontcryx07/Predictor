@@ -1,5 +1,7 @@
-"""Run the ranker against the local proxy ground truth and report the composite,
-plus ablations and a small sensitivity sweep. Diagnostics only.
+"""Runs the proxy eval + a couple of ablations/sensitivity sweeps.
+
+Mainly used this to check the honeypot filter and jdfit/behavior weights
+actually matter (and aren't just decoration) before locking them in.
 
     python -m tools.evaluate_run --candidates ./dataset/candidates.jsonl
 """

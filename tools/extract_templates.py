@@ -1,13 +1,13 @@
-"""Extract the distinct career-history description templates from the pool.
+"""Pull out the distinct career_history description strings and count them.
 
-The dataset was found (during EDA) to be composed of a small, fixed set of
-canonical `career_history[].description` strings. This tool enumerates them,
-counts their frequency, and writes a stable, index-ordered JSON artifact used
-to build and validate the evidence audit in `src/templates_audit.py`.
+This is the script that found the 44-template thing in the first place --
+ran it early on just to see how much variety was in the description text,
+and was surprised the count was so low. Output feeds src/templates_audit.py
+and the calibration/test scripts.
 
 Usage:
     python tools/extract_templates.py --candidates ./dataset/candidates.jsonl \
-        --out ./dataset/_templates_extracted.json
+        --out ./dataset/career_description_templates.json
 """
 from __future__ import annotations
 

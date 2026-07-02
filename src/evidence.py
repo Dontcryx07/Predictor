@@ -1,29 +1,29 @@
-"""Stage 1 — the general evidence scorer.
+"""The evidence scorer -- this is the actual core of the ranker.
 
-This is the core of the ranker. It reads *what a candidate actually did* from
-free text (career descriptions, plus headline/summary as a minor booster) and
-produces a continuous ``evidence grade`` in [0, 1] measuring fit for the JD's
-real intent: production retrieval / ranking / search / recommendation / NLP-IR
-work — as opposed to keyword lists, which we never score for evidence.
+Idea: read what a candidate *actually did* from the free-text career
+descriptions (plus headline/summary as a minor tie-breaker), and turn that
+into a 0-1 "evidence grade" for how much their work looks like the JD's real
+ask (retrieval / ranking / search / recsys / NLP-IR), not how many buzzwords
+are in their skills list.
 
-Design principles:
-    * **General, not a lookup.** Scoring is driven by a transparent concept
-      ontology (families of phrases, each with a weight), so it generalizes to
-      unseen text (the sandbox sample). The 44-template audit validates it.
-    * **Plain-language aware.** The JD's stated trap is that a Tier-5 candidate
-      may describe ranking/retrieval work in plain English with zero jargon.
-      The ontology therefore includes plain-language phrases ("matching layer",
-      "most relevant matches", "surface the right thing") alongside jargon.
-    * **Trap-resistant.** Non-technical base roles (a content writer who name-
-      drops "AI/ML") are suppressed; CV-primary work is capped; hedging
-      disclaimers ("wouldn't call myself an ML specialist", "deployment was
-      handled by the platform team") discount the grade.
-    * **Explainable.** Every score carries the concept families it matched,
-      which feeds both reasoning generation and defense at interview.
+A few things this has to handle, learned the hard way from looking at actual
+profiles:
 
-Matching uses alphanumeric-boundary lookarounds (not naive substring), so
-short tokens like "rag" or "ltr" never match inside longer words such as
-"sto*rag*e" or "fil*ltr*ed".
+- It can't be a keyword lookup against the skills array, because that's
+  exactly the surface the JD warns is gamed (see the Marketing Manager with
+  9 "AI core skills" in the sample submission).
+- Some of the strongest candidates describe real ranking/retrieval work in
+  completely plain English -- "built systems that connect users to the most
+  relevant matches" -- with zero ML jargon. The phrase list below has to
+  include that kind of language, not just BM25/FAISS/embeddings-speak.
+- Content writers who namedrop "AI/ML topics" and "LLM tools" need to still
+  score near zero, because the actual job is writing, not building anything.
+- CV-only work gets capped rather than zeroed, since it's real ML, just not
+  the NLP/IR the role needs.
+
+Matching uses word-boundary regex, not naive substring search -- otherwise
+short tokens like "rag" or "ltr" match inside words like "sto[rag]e" or
+"fi[ltr]ate", which was a real bug in an earlier version of this.
 """
 from __future__ import annotations
 

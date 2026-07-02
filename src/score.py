@@ -1,16 +1,18 @@
-"""Stage 5 — final scoring, ranking, and deterministic tie-breaking.
-
-Combines the four signals into a single composite while guaranteeing that a
-stronger evidence tier can never be inverted by the bounded JD-fit / behavioral
-refinements:
+"""Where evidence + jdfit + behavior + traps get combined into one number.
 
     within_score = evidence_grade * (1 + ALPHA*jdfit) * behavior_mult * trap_penalty
-    composite    = evidence_tier + squash(within_score)          # tier-lexicographic
+    composite    = evidence_tier + squash(within_score)
 
-Honeypot-flagged candidates are excluded from the shortlist entirely (spec
-Section 7). Ranking is fully deterministic: candidates are ordered by composite
-descending, with exact ties broken by ``candidate_id`` ascending — exactly the
-rule the official validator enforces.
+The tier is added as a whole number so it dominates -- no amount of good
+location/notice/behavior can push a Tier-3 candidate above a Tier-4 one. Only
+within the same tier does the continuous stuff matter. Took a couple of
+iterations to land on this; my first version was a pure weighted sum and it
+let a very-online Tier-2 candidate outrank a quiet Tier-4, which is obviously
+wrong.
+
+Honeypots get dropped before ranking (not just penalized -- see traps.py for
+why). Sorting is deterministic: composite descending, candidate_id ascending
+on ties, matching exactly what the validator checks for.
 """
 from __future__ import annotations
 

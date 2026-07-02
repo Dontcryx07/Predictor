@@ -1,8 +1,8 @@
-"""Redrob Intelligent Candidate Ranking — source package.
+"""Ranking pipeline for the Redrob candidate search challenge.
 
-A transparent, evidence-graded ranking pipeline. See plan.md and README.md
-for the full methodology. Every module here is a set of pure functions over
-plain candidate dicts so the pipeline stays modular, testable and explainable.
+See README.md for the full writeup. Each module below is basically a set of
+pure functions over the candidate dict, mostly so it's easy to unit test and
+easy to explain in the writeup / interview without hand-waving.
 """
 
 __version__ = "1.0.0"
