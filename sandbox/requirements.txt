@@ -1,0 +1,3 @@
+# Sandbox-only dependency. The ranking pipeline itself needs no third-party
+# packages; Streamlit is only the hosted demo wrapper.
+streamlit==1.40.2

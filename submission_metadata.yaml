@@ -1,0 +1,82 @@
+# Redrob Hackathon — Submission Metadata
+# Technical fields and declarations below are accurate for this repository.
+# Team-identity fields are placeholders — fill them in before submitting.
+
+# ============================================================================
+# Team identity  (FILL THESE IN)
+# ============================================================================
+team_name: "your-team-name-here"
+
+primary_contact:
+  name: "Full Name"
+  email: "primary@example.com"
+  phone: "+91-XXXXXXXXXX"
+
+team_members:
+  - name: "Member 1 Full Name"
+    email: "member1@example.com"
+    role: "ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/YOUR_USERNAME/YOUR_REPO"
+
+sandbox_link: "https://YOUR_USERNAME-redrob-ranker.streamlit.app"
+# Streamlit Community Cloud app pointing at sandbox/app.py (see sandbox/).
+
+reproduce_command: "python rank.py --candidates ./dataset/candidates.jsonl --out ./submission.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "Local Windows workstation"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.14"
+  os: "Windows 10"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration (transparency only)
+# ============================================================================
+ai_tools_used:
+  - "Cursor"
+  - "Claude"
+
+ai_usage_summary: |
+  Used AI coding assistants (Cursor / Claude) for pair-programming, code review,
+  and architectural discussion. All data exploration, the 44-template audit and
+  its tier grades, the ontology design, honeypot logic, and scoring formulation
+  are our own engineering decisions, validated with our own local evaluation
+  harness. No candidate data was sent to any hosted LLM, and the ranking step
+  makes no network calls.
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Evidence-first ranker. EDA revealed the pool is built from only 44 canonical
+  career-description templates, so we hand-audit each against the JD and validate
+  a general lexical evidence scorer to reproduce those tiers exactly. Evidence is
+  read from career descriptions (never the skills list, which is the keyword-
+  stuffer trap surface); company names are treated as noise. A tier-lexicographic
+  composite (evidence tier dominant) is refined within-tier by JD-fit (experience
+  6-8y, Pune/Noida, notice) and a behavioral-availability multiplier. Honeypots
+  are excluded via internal profile contradictions (experience inflation, phantom
+  expertise). Pure-Python, deterministic, ~19s for 100k candidates on CPU, with
+  fact-grounded reasoning per candidate.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
