@@ -3,22 +3,24 @@
 evidence.py answers "did they actually do this kind of work". This module
 answers the more mundane question of whether the rest of the JD lines up --
 years of experience, location, notice period, product vs. consulting
-background, and whether their claimed skills hold up against Redrob's own
-assessment scores.
+background, whether their claimed skills hold up against Redrob's own
+assessment scores, how stable their tenure pattern is, and how much of the
+career was actually spent in ML roles.
 
 This is deliberately a *small* correction on top of evidence, not a second
 vote of equal weight -- see ALPHA below. A candidate with amazing evidence but
 a slightly long notice period should still clearly outrank a mediocre one
-sitting in Noida. The weights here are my best read of the JD's stated
-priorities (5-9y band, Pune/Noida offices, sub-30-day notice preferred), not
-anything derived from the data.
+sitting in Noida. Every sub-score maps to an explicit line in the JD (5-9y
+band, Pune/Noida offices, sub-30-day notice, "not pure services", the
+title-chaser warning, "4-5 years in applied ML/AI roles"), not to anything
+derived from the data.
 """
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 
-from . import parse
+from . import evidence, parse
 
 
 # Weight applied to jdfit in the final multiplier (1 + ALPHA * jdfit).
@@ -37,6 +39,8 @@ _SUBSCORE_WEIGHTS = {
     "notice": 0.15,
     "product": 0.11,
     "skill_trust": 0.10,
+    "tenure": 0.10,
+    "ml_depth": 0.12,
 }
 
 _PRODUCT_MARKERS = (
@@ -56,6 +60,8 @@ class JDFitResult:
     notice: float
     product: float
     skill_trust: float
+    tenure: float = 0.0
+    ml_depth: float = 0.0
     location_label: str = ""
     breakdown: dict = field(default_factory=dict)
 
@@ -123,6 +129,63 @@ def _product_fit(candidate: dict) -> float:
     return 0.0
 
 
+def _role_duration_months(role: dict) -> float:
+    """Role length in months; prefers the explicit field, falls back to dates."""
+    dur = role.get("duration_months")
+    if isinstance(dur, (int, float)) and dur > 0:
+        return float(dur)
+    months = parse.months_between(role.get("start_date"), role.get("end_date"))
+    return float(months) if months and months > 0 else 0.0
+
+
+def _tenure_fit(candidate: dict) -> float:
+    """Average stint length vs the JD's title-chaser warning.
+
+    The JD is blunt about this: "switching companies every 1.5 years" is a
+    no, and they want someone who "plans to be here for 3+ years". With a
+    single listed role there's no hopping pattern to read, so that stays
+    neutral rather than rewarding a possibly truncated history.
+    """
+    durations = [_role_duration_months(r) for r in parse.career_history(candidate)]
+    durations = [d for d in durations if d > 0]
+    if len(durations) < 2:
+        return 0.0
+    avg = sum(durations) / len(durations)
+    if avg >= 36.0:
+        return 1.0
+    if avg >= 24.0:
+        return 0.5
+    if avg >= 18.0:
+        return 0.0
+    if avg >= 12.0:
+        return -0.5
+    return -0.8
+
+
+def _ml_depth_fit(candidate: dict) -> float:
+    """Years actually spent in ML roles, per the JD's "4-5 in applied ML/AI".
+
+    A role counts as ML time if its own description grades at tier 3+ on the
+    evidence scorer (real modeling work, not just data-adjacent). score_text
+    is memoized, so re-scoring descriptions here costs nothing.
+    """
+    ml_months = 0.0
+    for role in parse.career_history(candidate):
+        desc = role.get("description")
+        if isinstance(desc, str) and evidence.score_text(desc).grade >= 0.36:
+            ml_months += _role_duration_months(role)
+    years = ml_months / 12.0
+    if years >= 4.0:
+        return 1.0
+    if years >= 3.0:
+        return 0.6
+    if years >= 2.0:
+        return 0.2
+    if years >= 1.0:
+        return -0.1
+    return -0.4
+
+
 def _skill_trust(candidate: dict) -> float:
     """Reward assessment scores that corroborate claimed proficiency.
 
@@ -150,6 +213,8 @@ def score(candidate: dict) -> JDFitResult:
     notice = _notice_fit(candidate)
     product = _product_fit(candidate)
     skill_trust = _skill_trust(candidate)
+    tenure = _tenure_fit(candidate)
+    ml_depth = _ml_depth_fit(candidate)
 
     subs = {
         "experience": exp,
@@ -157,6 +222,8 @@ def score(candidate: dict) -> JDFitResult:
         "notice": notice,
         "product": product,
         "skill_trust": skill_trust,
+        "tenure": tenure,
+        "ml_depth": ml_depth,
     }
     blended = sum(_SUBSCORE_WEIGHTS[k] * subs[k] for k in subs)
     total_weight = sum(_SUBSCORE_WEIGHTS.values())
@@ -170,6 +237,8 @@ def score(candidate: dict) -> JDFitResult:
         notice=notice,
         product=product,
         skill_trust=skill_trust,
+        tenure=tenure,
+        ml_depth=ml_depth,
         location_label=loc_label,
         breakdown=subs,
     )

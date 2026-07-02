@@ -73,6 +73,46 @@ def test_experience_band_peaks_at_7():
     assert jdfit._experience_fit(15.0) < 0
 
 
+def _with_roles(candidate, roles):
+    out = dict(candidate)
+    out["career_history"] = roles
+    return out
+
+
+def test_tenure_penalizes_job_hoppers(strong_candidate):
+    hopper_roles = [
+        {"duration_months": 14, "description": "java backend development at a large enterprise"},
+        {"duration_months": 15, "description": "java backend development at a large enterprise"},
+        {"duration_months": 13, "description": "java backend development at a large enterprise"},
+    ]
+    stable_roles = [
+        {"duration_months": 48, "description": "java backend development at a large enterprise"},
+        {"duration_months": 40, "description": "java backend development at a large enterprise"},
+    ]
+    hopper = jdfit._tenure_fit(_with_roles(strong_candidate, hopper_roles))
+    stable = jdfit._tenure_fit(_with_roles(strong_candidate, stable_roles))
+    assert hopper < 0 < stable
+
+
+def test_tenure_neutral_for_single_role(strong_candidate):
+    # One role tells us nothing about hopping; must not reward or punish.
+    assert jdfit._tenure_fit(strong_candidate) == 0.0
+
+
+def test_ml_depth_rewards_sustained_ml_work(strong_candidate):
+    from tests.conftest import STRONG_DESC, NONTECH_DESC
+    deep = [
+        {"duration_months": 36, "description": STRONG_DESC},
+        {"duration_months": 24, "description": STRONG_DESC},
+    ]
+    shallow = [
+        {"duration_months": 6, "description": STRONG_DESC},
+        {"duration_months": 60, "description": NONTECH_DESC},
+    ]
+    assert jdfit._ml_depth_fit(_with_roles(strong_candidate, deep)) == 1.0
+    assert jdfit._ml_depth_fit(_with_roles(strong_candidate, shallow)) < 0
+
+
 # --------------------------------------------------------------------------- behavior
 def test_behavior_bounds(strong_candidate, anchor):
     b = behavior.modifier(strong_candidate, anchor)

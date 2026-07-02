@@ -78,6 +78,26 @@ capped tightly (`jdfit.ALPHA = 0.30`, behavior multiplier bounded to
 [0.6, 1.1]) so a wrong bet reorders people within a tier rather than costing
 an entire tier's worth of NDCG.
 
+## Late addition: two more JD signals (tenure, ML depth)
+
+Re-reading the JD's "things we explicitly do NOT want" and "how to read
+between the lines" sections, two statements mapped to data we weren't using:
+
+- "switching companies every 1.5 years, we're not a fit... plans to be here
+  for 3+ years" -> average stint length from `career_history` durations.
+  Neutral when only one role is listed (no pattern to read from one point).
+- "6-8 years total experience, of which 4-5 are in applied ML/AI roles" ->
+  we scored total YoE but not how much of it was actually *in* ML roles.
+  Now summing durations of roles whose description grades tier 3+.
+
+Both added as small-weight jdfit sub-scores (0.10 / 0.12 vs 0.34 for the
+experience band), so they reorder within a tier only. Effect on the full
+pool: top-100 membership changed by 7 candidates at the tail (job-hoppers
+with 13-16 month stints swapped out for equally-strong candidates with
+3-4 year stints), top-4 unchanged, ranks 5-10 reshuffled slightly. All of
+that is inside tier 5, which is exactly the blast radius intended.
+Calibration still 0/44 mismatches, validator passes, proxy composite 1.0.
+
 ## For the presentation
 
 Lead with the 44-template discovery -- it's the one finding that a team

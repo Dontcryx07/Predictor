@@ -94,10 +94,19 @@ composite    = evidence_tier + squash(within_score)          # α = 0.30
 
 `composite` is **tier-lexicographic**: the integer evidence tier dominates, so a
 Tier-5 candidate can never be pushed below a Tier-4 by the bounded JD-fit and
-behavioral refinements. Within a tier, the continuous `within_score` orders
-candidates by evidence strength, JD logistics (experience 6–8y, Pune/Noida,
-short notice) and availability — implementing the JD's explicit instruction to
-down-weight strong-but-unreachable candidates.
+behavioral refinements. Within a tier, every ordering signal implements a
+specific statement in the JD itself:
+
+| Within-tier signal | JD line it implements |
+| --- | --- |
+| Experience band (peak 6–8y) | "6-8 years total experience" / "5-9 ... a range, not a requirement" |
+| Location tiers | "Located in or willing to relocate to Noida or Pune" |
+| Notice period | The JD's note on preferring short/buyable notice |
+| Product-vs-consulting context | "at product companies (not pure services)" + the consulting-firms-only disqualifier |
+| Tenure stability | "switching companies every 1.5 years, we're not a fit... plans to be here for 3+ years" |
+| ML career depth | "of which 4-5 are in applied ML/AI roles" |
+| Skill trust (assessments) | Redrob's own verified skill signals over self-claims |
+| Behavioral multiplier | "hasn't logged in for 6 months and has a 5% recruiter response rate is... not actually available" |
 
 ### Honeypot defense
 
@@ -164,10 +173,13 @@ python -m tools.evaluate_run --candidates ./dataset/candidates.jsonl
 there are no tier inversions (structural correctness). **What it cannot
 validate:** because the proxy is derived from the same audit that drives the
 scorer, its composite is ~1.0 by construction and says nothing about the *hidden*
-ground truth's ordering *within* the ~169 strong candidates. That within-tier
-ordering (by availability, location, experience band) is a principled bet on the
-JD's stated priorities, not something we can score locally. We call this out
-rather than overclaim.
+ground truth's ordering *within* the ~169 strong candidates. No local metric can
+score that ordering — the proxy has only 6 relevance levels, so all strong
+candidates tie under it. What we did instead is make every within-tier signal
+traceable to an explicit sentence in the JD (see the table under Scoring
+formulation), so the ordering is the hiring manager's own stated priorities
+rather than our invented ones. That is a principled bet, not a measured score,
+and we call it out rather than overclaim.
 
 ---
 
@@ -175,7 +187,7 @@ rather than overclaim.
 
 ```bash
 pip install -r requirements.txt   # pytest only; runtime needs nothing
-python -m pytest tests/ -q         # 28 tests
+python -m pytest tests/ -q         # 31 tests
 ```
 
 The key test, `test_scorer_reproduces_audit_tier_for_all_44`, asserts the
