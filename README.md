@@ -155,8 +155,7 @@ output without needing the full 465MB pool. Run it locally with:
 streamlit run sandbox/app.py
 ```
 
-It's deployed at: _add your Streamlit Community Cloud URL here before
-submitting_.
+It's deployed at: https://predictor-aqcz3wtcjbfnypjh2qmd2y.streamlit.app/.
 
 ---
 
